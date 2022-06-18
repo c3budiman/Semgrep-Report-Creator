@@ -16,7 +16,7 @@ export default async function handler(
       const HardCodedData = {
         name: "c3budiman",
         role: "admin",
-        organization: "Holywings",
+        organization: "Kocak wkwkwk",
         accessToken: "1234567890",
       };
       const sessionResult = await setSession(

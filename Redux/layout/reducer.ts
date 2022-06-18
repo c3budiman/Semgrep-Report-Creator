@@ -28,7 +28,7 @@ const Layout = (state = INIT_STATE, action: actionType) => {
         breadcrumb: action.payload,
       };
     default:
-      return INIT_STATE;
+      return state;
   }
 };
 
