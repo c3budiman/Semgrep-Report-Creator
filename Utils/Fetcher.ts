@@ -1,14 +1,14 @@
 /* eslint-disable import/prefer-default-export */
-import axios from "axios";
+import axios, { AxiosResponse } from "axios";
 import { showError } from "./Helpers/AntdHelper";
 
-export async function FetcherPost(
+export async function FetcherPost<T = any, R = AxiosResponse<T, any>>(
   sessions: any,
   url: string,
   data: any,
-) {
+) : Promise<R> {
   try {
-    const response = await axios.post(url, data, {
+    const response = await axios.post<T, R>(url, data, {
       headers: {
         Authorization: `Bearer ${sessions?.data?.accessToken}` ?? "",
       },
@@ -16,22 +16,9 @@ export async function FetcherPost(
 
     return response;
   } catch (error) {
-    showError(
-      "Error!",
-      // @ts-ignore
-      error?.response?.data?.message
-        // @ts-ignore
-        ?? error?.response?.data?.info
-        ?? "Terjadi Kesalahan pada server!",
-    );
-    return {
-      code: -1,
-      info:
-        // @ts-ignore
-        error?.response?.data?.message
-        // @ts-ignore
-        ?? error?.response?.data?.info
-        ?? "Terjadi Kesalahan pada server!",
-    };
+    // @ts-ignore
+    showError("error!", error?.response?.data?.message ?? error?.response?.data?.info ?? "Terjadi Kesalahan pada server!");
+    // @ts-ignore
+    throw (error?.response?.data?.message ?? error?.response?.data?.info ?? "Terjadi Kesalahan pada server!");
   }
 }

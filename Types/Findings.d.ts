@@ -30,7 +30,7 @@ export interface SemgrepPolicy {
 export interface Metadata {
     "owasp-web"?: string;
     owasp?: string;
-    cwe?: string;
+    cwe?: string | Array<string>;
     license?: string;
     source?: string;
     shortlink?: string;

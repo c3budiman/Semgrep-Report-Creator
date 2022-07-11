@@ -2,9 +2,9 @@ import { createRef, forwardRef, useEffect } from "react";
 import Head from "next/head";
 import dynamic from 'next/dynamic';
 import { useSelector } from "react-redux";
-import { Col, Row } from "antd";
-import { Button } from "antd/lib/radio";
+import { Col, Row, Spin, Button } from "antd";
 import { jsPDF as JSPDF } from "jspdf";
+import { useQuery } from "react-query";
 import { handleSessions } from "../../Utils/Helpers/GetSession";
 import DashboardLayout from "../../Layouts/DashboardLayout";
 import { changeSidebarKey } from "../../Redux/layout/action";
@@ -12,6 +12,8 @@ import returnStoreAndPersistor from "../../Redux/store";
 import { RootState } from "../../Redux/reducer";
 import { themeColor } from "../../Configs/themeColor";
 import { BarChartsProps, RefBarApex } from "../../Components/Charts/BarCharts";
+import { fetchSummary } from "../../Services/FindingService";
+import { SummaryResponse } from "../../Types/FindingsResponse";
 
 const BarChartsC = dynamic(import('../../Components/Charts/BarCharts'), { ssr: false });
 function BarChartsCFwd(props: BarChartsProps, ref: any) {
@@ -47,12 +49,20 @@ function Dashboard(session: any) {
       categories: ['LOW', 'MEDIUM', 'HIGH']
     }
   };
-
+  const AssesmentSession = useSelector(
+    (state: RootState) => state.assesmentSession.selectedSessions
+  );
+  // Start of UseEffect
   useEffect(() => {
     store.dispatch(changeSidebarKey(["dashboard"]));
   }, [store]);
+  // End of UseEffect
 
-  const CountBySeverity = useSelector((state: RootState) => state.findings.findingsBySeverity);
+  const SummaryFromDB = useQuery<SummaryResponse>(["findings/summary-inDashboard", AssesmentSession?.uuid], () => fetchSummary(AssesmentSession?.uuid), {
+    refetchOnWindowFocus: true,
+    staleTime: 60 * 1000,
+    keepPreviousData: true,
+  });
 
   const TestGeneratePDF = async () => {
     if (typeof RefSeverityBar.current?.generateDataURI === "function") {
@@ -70,6 +80,7 @@ function Dashboard(session: any) {
       <Head>
         <title>Dashboard Page</title>
       </Head>
+
       <DashboardLayout session={session}>
         <Row justify="end">
           <Col>
@@ -77,22 +88,25 @@ function Dashboard(session: any) {
           </Col>
         </Row>
 
-        <BarCharts
-          ref={RefSeverityBar}
-          options={BarOptions}
-          series={[
-            {
-              name: "Findings",
-              data: [
-                CountBySeverity.find((a: any) => a?.severity === "LOW")?.count ?? 0,
-                CountBySeverity.find((a: any) => a?.severity === "MEDIUM")?.count ?? 0,
-                CountBySeverity.find((a: any) => a?.severity === "HIGH")?.count ?? 0,
-              ]
-            },
-          ]}
-          height={250}
-        />
+        <Spin tip="Loading..." spinning={SummaryFromDB.isLoading}>
+          <BarCharts
+            ref={RefSeverityBar}
+            options={BarOptions}
+            series={[
+              {
+                name: "Findings",
+                data: [
+                  SummaryFromDB.data?.data?.find((a: any) => a?.severity === "LOW")?.count_severity ?? 0,
+                  SummaryFromDB.data?.data?.find((a: any) => a?.severity === "MEDIUM")?.count_severity ?? 0,
+                  SummaryFromDB.data?.data?.find((a: any) => a?.severity === "HIGH")?.count_severity ?? 0,
+                ]
+              },
+            ]}
+            height={250}
+          />
+        </Spin>
       </DashboardLayout>
+
     </>
   );
 }

@@ -9,8 +9,10 @@ import NextNProgress from "nextjs-progressbar";
 import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
 import { QueryClient, QueryClientProvider } from "react-query";
+import { ReactQueryDevtools } from 'react-query/devtools';
 import { themeColor } from "../Configs/themeColor";
 import returnStoreAndPersistor from "../Redux/store";
+import { isDev } from "../Utils/Helpers/HelperBrowser";
 
 type NextPageWithLayout = NextPage & {
   // eslint-disable-next-line no-unused-vars
@@ -32,6 +34,11 @@ export default function MyApp({ Component, pageProps }: AppPropsWithLayout) {
       <Provider store={store}>
         <PersistGate loading={null} persistor={persistor}>
           <QueryClientProvider client={queryClient}>
+            {
+              isDev && (
+                <ReactQueryDevtools initialIsOpen={false} />
+              )
+            }
             {/* eslint-disable-next-line react/jsx-props-no-spreading */}
             <Component {...pageProps} />
           </QueryClientProvider>

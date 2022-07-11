@@ -1,11 +1,17 @@
-import { Avatar, Col, Dropdown, Menu, Row } from "antd";
+/* eslint-disable jsx-a11y/no-static-element-interactions */
+/* eslint-disable jsx-a11y/click-events-have-key-events */
+import { Avatar, Button, Col, Dropdown, Menu, Row } from "antd";
 import { Header } from "antd/lib/layout/layout";
 import axios from "axios";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import { themeColor } from "../../Configs/themeColor";
+import { RootState } from "../../Redux/reducer";
 import { isNotDashboard, ReplaceNavigateTo } from "../../Utils/Helpers/Routing";
+import WizardCreateSession from "../Modals/WizardCreateSession";
 
 type HeaderProps = {
   session: any;
@@ -19,6 +25,15 @@ function HeaderOur({ session }: HeaderProps) {
       ReplaceNavigateTo("/login?code=1");
     }
   };
+  const AssesmentSession = useSelector(
+    (state: RootState) => state.assesmentSession.selectedSessions
+  );
+  const [openWizardCreateSession, setOpenWizardCreateSession] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (AssesmentSession?.uuid === "") setOpenWizardCreateSession(true);
+  }, [AssesmentSession?.uuid]);
+
   const menuDesktop = (
     <Menu onClick={doLogout}>
       <Menu.Item>Signout</Menu.Item>
@@ -28,14 +43,27 @@ function HeaderOur({ session }: HeaderProps) {
   const loginTextStyle = { fontSize: "14px", fontWeight: 600, color: themeColor.fontPrimary, cursor: "pointer" };
   return (
     <>
+      <WizardCreateSession
+        visible={openWizardCreateSession}
+        onCancel={() => { setOpenWizardCreateSession(false); }}
+      />
       {session?.code === 0 && (
         <Header className="site-layout-background" style={{ padding: 0, background: themeColor.headerPrimary }}>
           <Menu mode="horizontal">
             <Row
               style={{ width: "100%" }}
               align="middle"
-              justify={isNotDashboard(router) ? "space-between" : "end"}
+              justify="space-between"
             >
+              {
+                !isNotDashboard(router) && (
+                  <Row justify="center" style={{ marginLeft: "20px" }}>
+                    <Button style={{ background: themeColor.darkBlueSecondary, color: "#fff" }} onClick={() => { setOpenWizardCreateSession(true); }}>
+                      {AssesmentSession?.name}
+                    </Button>
+                  </Row>
+                )
+              }
               {isNotDashboard(router) && (
                 <Link href="/dashboard" passHref>
                   <Row style={{ cursor: "pointer" }}>
@@ -65,7 +93,7 @@ function HeaderOur({ session }: HeaderProps) {
                       fontWeight: "bold",
                     }}
                   >
-                    {session?.data?.name}
+                    {session?.data?.user?.name}
                   </p>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
