@@ -27,5 +27,5 @@ jobs:
           git stash
           git pull
           pnpm install
-          pnpm run build
+          npm run build
           pm2 restart sec-fe
