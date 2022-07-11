@@ -1,0 +1,31 @@
+name: BuildToDevServer
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: "ubuntu-18.04"
+
+    strategy:
+      matrix:
+        node-version: [14.x]
+
+    steps:
+    - name: SSH Remote Commands & deploy
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.SSH_HOST }}
+        port: 22
+        username: ${{ secrets.SSH_USER }}
+        password: ${{ secrets.SSH_PASS }}
+        script: |
+          cd /project/sec-framework-front
+          git stash
+          git pull
+          pnpm install
+          npm run build
+          pm2 restart sec-fe
