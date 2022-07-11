@@ -6,7 +6,7 @@ function Home(session: any) {
   return (
     <>
       <Head>
-        <title>CryptoBudiman</title>
+        <title>Security Assesment Framework</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <DashboardLayout session={session}>

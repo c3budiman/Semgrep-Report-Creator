@@ -31,7 +31,7 @@ function HeaderOur({ session }: HeaderProps) {
   const [openWizardCreateSession, setOpenWizardCreateSession] = useState<boolean>(false);
 
   useEffect(() => {
-    if (AssesmentSession?.uuid === "") setOpenWizardCreateSession(true);
+    if (AssesmentSession?.uuid === "" && session?.code === 0) setOpenWizardCreateSession(true);
   }, [AssesmentSession?.uuid]);
 
   const menuDesktop = (
@@ -43,10 +43,12 @@ function HeaderOur({ session }: HeaderProps) {
   const loginTextStyle = { fontSize: "14px", fontWeight: 600, color: themeColor.fontPrimary, cursor: "pointer" };
   return (
     <>
-      <WizardCreateSession
-        visible={openWizardCreateSession}
-        onCancel={() => { setOpenWizardCreateSession(false); }}
-      />
+      {session?.code === 0 && (
+        <WizardCreateSession
+          visible={openWizardCreateSession}
+          onCancel={() => { setOpenWizardCreateSession(false); }}
+        />
+      )}
       {session?.code === 0 && (
         <Header className="site-layout-background" style={{ padding: 0, background: themeColor.headerPrimary }}>
           <Menu mode="horizontal">
@@ -75,7 +77,7 @@ function HeaderOur({ session }: HeaderProps) {
                         width="40px"
                       />
                     </div>
-                    <p id="headerTittle" style={logoTextStyle}>CryptoBudiman</p>
+                    <p id="headerTittle" style={logoTextStyle}>Security Assesment Framework</p>
                   </Row>
                 </Link>
               )}
@@ -120,7 +122,7 @@ function HeaderOur({ session }: HeaderProps) {
                   height="40px"
                   width="40px"
                 />
-                <p id="headerTittle" style={logoTextStyle}>CryptoBudiman</p>
+                <p id="headerTittle" style={logoTextStyle}>Security Assesment Framework</p>
               </Row>
             </Col>
             <Col xs={12} sm={12} md={12} lg={12}>
